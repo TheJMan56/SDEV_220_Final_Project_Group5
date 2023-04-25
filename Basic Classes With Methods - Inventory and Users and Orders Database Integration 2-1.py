@@ -1,7 +1,15 @@
 import sqlite3
+from datetime import date
 
 conn = sqlite3.connect('Inventory_and_Users_and_Orders.db')
 curs = conn.cursor()
+
+def obtainInventoryItem(inventoryID):
+    sql = 'SELECT * FROM Inventory WHERE inventoryID ='
+    inventoryID = str(inventoryID)
+    curs.execute(sql + " " + inventoryID)
+    row = curs.fetchone()
+    return row
 
 class Inventory():
     def __init__(self):
@@ -58,6 +66,13 @@ class Inventory():
         self.department = department
         inventoryPrice = float(input("Enter the inventory price: "))
         self.inventoryPrice = inventoryPrice
+        inventoryQuantity = float(input("Enter the inventory quantity: "))
+        self.inventoryQuantity = inventoryQuantity
+        inventoryValue = inventoryPrice * inventoryQuantity
+        self.inventoryValue = inventoryValue
+
+    def alterInventoryQuantity(self):
+        inventoryPrice = self.inventoryPrice
         inventoryQuantity = float(input("Enter the inventory quantity: "))
         self.inventoryQuantity = inventoryQuantity
         inventoryValue = inventoryPrice * inventoryQuantity
@@ -136,10 +151,10 @@ class User():
         self.email = userData[2]
         self.loginPassword = userData[3]
         self.creditCard = userData[4]
-        self.address = userData[5]
-        self.city = userData[6]
-        self.state = userData[7]
-        self.country = userData[8]
+        self.city = userData[5]
+        self.state = userData[6]
+        self.country = userData[7]
+        self.address = userData[8]
         self.phone = userData[9]
 
     def updateInfo(self):
@@ -187,19 +202,20 @@ class User():
         curs.execute(delUser, self.userID)
         conn.commit()
 
-    def makeOrder(self):
-        pass
-
 class Order():
     def __init__(self):
         pass
 
     def startOrder(self):
-        items = {}
+        items = set()
         pricePerItem = {}
         quantityPerItem = {}
         costPerItem = {}
         totalPerItem = {}
+        originalQuantityPerItem = {}
+        originalValuePerItem = {}
+        alteredQuantityPerItem = {}
+        alteredValuePerItem = {}
         totalCost = 0
         orderID = input("Enter the order ID: ")
         self.orderID = orderID
@@ -213,6 +229,10 @@ class Order():
         self.pricePerItem = pricePerItem
         self.quantityPerItem = quantityPerItem
         self.costPerItem = costPerItem
+        self.originalQuantityPerItem = originalQuantityPerItem
+        self.originalValuePerItem = originalValuePerItem
+        self.alteredQuantityPerItem = alteredQuantityPerItem
+        self.alteredValuePerItem = alteredValuePerItem
         self.totalCost = totalCost
 
     def outputOrder(self):
@@ -227,16 +247,171 @@ class Order():
         print(f"Price Per Item: {self.pricePerItem}")
         print(f"Quantity Per Item: {self.quantityPerItem}")
         print(f"Cost Per Item: {self.costPerItem}")
+        print(f"Original Quantity Per Item: {self.originalQuantityPerItem}")
+        print(f"Original Value Per Item: {self.originalValuePerItem}")
+        print(f"Altered Quantity Per Item: {self.alteredQuantityPerItem}")
+        print(f"Altered Value Per Item: {self.alteredValuePerItem}")
         print(f"Total Cost: {self.totalCost}")
+
+    def outputRetrievedOrder(self):
+        orderID = input("Enter the order ID: ")
+        getOrder = 'SELECT * FROM Orders WHERE orderID ='
+        orderID = str(orderID)
+        curs.execute(getOrder + " " + orderID)
+        orderInfo = curs.fetchone()
+        print(f"Order ID: {orderInfo[0]}")
+        print(f"User ID: {orderInfo[1]}")
+        print(f"Credit Card: {orderInfo[2]}")
+        print(f"City: {orderInfo[3]}")
+        print(f"State: {orderInfo[4]}")
+        print(f"Country: {orderInfo[5]}")
+        print(f"Address: {orderInfo[6]}")
+        print(f"Items: {orderInfo[7]}")
+        print(f"Price Per Item: {orderInfo[8]}")
+        print(f"Quantity Per Item: {orderInfo[9]}")
+        print(f"Cost Per Item: {orderInfo[10]}")
+        print(f"Total Cost: {orderInfo[11]}")
+        print(f"Order Date: {orderInfo[12]}")
 
     def retrieveOrder(self):
         pass
+        orderID = input("Enter the order ID: ")
+        getOrder = 'SELECT * FROM Orders WHERE orderID ='
+        orderID = str(orderID)
+        curs.execute(getOrder + " " + orderID)
+        orderInfo = curs.fetchone()
+        print(f"Order ID: {orderInfo[0]}")
+        print(f"User ID: {orderInfo[1]}")
+        print(f"Credit Card: {orderInfo[2]}")
+        print(f"City: {orderInfo[3]}")
+        print(f"State: {orderInfo[4]}")
+        print(f"Country: {orderInfo[5]}")
+        print(f"Address: {orderInfo[6]}")
+        print(f"Items: {orderInfo[7]}")
+        print(f"Price Per Item: {orderInfo[8]}")
+        print(f"Quantity Per Item: {orderInfo[9]}")
+        print(f"Cost Per Item: {orderInfo[10]}")
+        print(f"Total Cost: {orderInfo[11]}")
+        print(f"Order Date: {orderInfo[12]}")
+
+    def addItems(self):
+        items = set()
+        pricePerItem = {}
+        quantityPerItem = {}
+        costPerItem = {}
+        originalQuantityPerItem = {}
+        originalValuePerItem = {}
+        alteredQuantityPerItem = {}
+        alteredValuePerItem = {}
+        totalCost = 0
+        while True:
+            inventoryID = input("Enter the inventory ID: ")
+            if inventoryID == "":
+                break
+            inventoryItem = obtainInventoryItem(inventoryID)
+            inventoryID = inventoryItem[0]
+            inventoryPrice = float(inventoryItem[3])
+            inventoryQuantity = float(inventoryItem[4])
+            inventoryValue = float(inventoryItem[5])
+            orderQuantity = float(input("Enter the order quantity: "))
+            alteredInventoryQuantity = inventoryQuantity - orderQuantity
+            alteredInventoryValue = inventoryPrice * alteredInventoryQuantity
+            orderPrice = inventoryPrice * orderQuantity
+            totalCost += orderPrice
+            items.add(inventoryID)
+            pricePerItem[inventoryID] = inventoryPrice
+            quantityPerItem[inventoryID] = orderQuantity
+            costPerItem[inventoryID] = orderPrice
+            originalQuantityPerItem[inventoryID] = inventoryQuantity
+            alteredQuantityPerItem[inventoryID]= alteredInventoryQuantity
+            originalValuePerItem[inventoryID] = inventoryValue
+            alteredValuePerItem[inventoryID] = alteredInventoryValue
+        self.items = items
+        self.pricePerItem = pricePerItem
+        self.quantityPerItem = quantityPerItem
+        self.costPerItem = costPerItem
+        self.originalQuantityPerItem = originalQuantityPerItem
+        self.originalValuePerItem = originalValuePerItem
+        self.alteredQuantityPerItem = alteredQuantityPerItem
+        self.alteredValuePerItem = alteredValuePerItem
+        self.totalCost = totalCost
 
     def addItem(self):
         pass
 
+    def removeItems(self):
+        items = set(self.items)
+        pricePerItem = dict(self.pricePerItem)
+        quantityPerItem = dict(self.quantityPerItem)
+        costPerItem = dict(self.costPerItem)
+        originalQuantityPerItem = dict(self.originalQuantityPerItem)
+        originalValuePerItem = dict(self.originalValuePerItem)
+        alteredQuantityPerItem = dict(self.alteredQuantityPerItem)
+        alteredValuePerItem = dict(self.alteredValuePerItem)
+        totalCost = self.totalCost
+        while True:
+            inventoryID = input("Enter the inventory ID: ")
+            if inventoryID == "":
+                break
+            inventoryID = int(inventoryID)
+            totalCost = totalCost - costPerItem[inventoryID]
+            items.remove(inventoryID)
+            del pricePerItem[inventoryID]
+            del quantityPerItem[inventoryID]
+            del costPerItem[inventoryID]
+            del originalQuantityPerItem[inventoryID]
+            del originalValuePerItem[inventoryID]
+            del alteredQuantityPerItem[inventoryID]
+            del alteredValuePerItem[inventoryID]
+        self.items = items
+        self.pricePerItem = pricePerItem
+        self.quantityPerItem = quantityPerItem
+        self.costPerItem = costPerItem
+        self.originalQuantityPerItem = originalQuantityPerItem
+        self.originalValuePerItem = originalValuePerItem
+        self.alteredQuantityPerItem = alteredQuantityPerItem
+        self.alteredValuePerItem = alteredValuePerItem
+        self.totalCost = totalCost
+
     def removeItem(self):
         pass
+
+    def changeItemQuantities(self):
+        items = set(self.items)
+        pricePerItem = dict(self.pricePerItem)
+        quantityPerItem = dict(self.quantityPerItem)
+        costPerItem = dict(self.costPerItem)
+        originalQuantityPerItem = dict(self.originalQuantityPerItem)
+        originalValuePerItem = dict(self.originalValuePerItem)
+        alteredQuantityPerItem = dict(self.alteredQuantityPerItem)
+        alteredValuePerItem = dict(self.alteredValuePerItem)
+        totalCost = 0
+        while True:
+            inventoryID = input("Enter the inventory ID: ")
+            if inventoryID == "":
+                break
+            inventoryID = int(inventoryID)
+            inventoryPrice = float(pricePerItem[inventoryID])
+            inventoryQuantity = originalQuantityPerItem[inventoryID]
+            orderQuantity = float(input("Enter the order quantity: "))
+            orderPrice = inventoryPrice * orderQuantity
+            alteredInventoryQuantity = inventoryQuantity - orderQuantity
+            alteredInventoryValue = inventoryPrice * alteredInventoryQuantity
+            quantityPerItem[inventoryID] = orderQuantity
+            costPerItem[inventoryID] = orderPrice
+            alteredQuantityPerItem[inventoryID] = alteredInventoryQuantity
+            alteredValuePerItem[inventoryID] = alteredInventoryValue
+        for key in costPerItem:
+            totalCost += costPerItem[key]
+        self.items = items
+        self.pricePerItem = pricePerItem
+        self.quantityPerItem = quantityPerItem
+        self.costPerItem = costPerItem
+        self.originalQuantityPerItem = originalQuantityPerItem
+        self.originalValuePerItem = originalValuePerItem
+        self.alteredQuantityPerItem = alteredQuantityPerItem
+        self.alteredValuePerItem = alteredValuePerItem
+        self.totalCost = totalCost
 
     def changeItemQuantity(self):
         pass
@@ -256,10 +431,29 @@ class Order():
         self.creditCard = creditCard
 
     def finilizeOrder(self):
-        pass
+        self.date = str(date.today())
+        insOrder = 'INSERT INTO Orders (orderID, userID, creditCard, \
+        address, city, state, country, items, pricePerItem, \
+        quantityPerItem, costPerItem, totalCost, orderDate) \
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        curs.execute(insOrder, (self.orderID, self.userID, self.creditCard, \
+                                self.address, self.city, self.state, \
+                                self.country, str(self.items), str(self.pricePerItem), \
+                                str(self.quantityPerItem), str(self.costPerItem), \
+                                self.totalCost, self.date))
+        conn.commit()
 
     def deductInventory(self):
-        pass
+        items = set(self.items)
+        alteredQuantityPerItem = dict(self.alteredQuantityPerItem)
+        alteredValuePerItem = dict(self.alteredValuePerItem)
+        updQuantity = 'UPDATE Inventory SET inventoryQuantity = ?, \
+                      inventoryValue = ? WHERE inventoryID = ?'
+        for inventoryID in items:
+            inventoryQuantity = alteredQuantityPerItem[inventoryID]
+            inventoryValue = alteredValuePerItem[inventoryID]
+            curs.execute(updQuantity, (inventoryQuantity, inventoryValue, inventoryID))
+            conn.commit()
 
 inventoryItem = Inventory()
 user = User()
@@ -277,6 +471,8 @@ while True:
         inventoryItem.addInventoryItem()
     elif choice == "alterInventoryItem":
         inventoryItem.alterInventoryItem()
+    elif choice == "alterInventoryQuantity":
+        inventoryItem.alterInventoryQuantity()
     elif choice == "commitAlteredInventoryItem":
         inventoryItem.commitAlteredInventoryItem()
     elif choice == "defineUser":
@@ -297,18 +493,24 @@ while True:
         user.commitResetPassword()
     elif choice == "deleteUser":
         user.deleteUser()
-    elif choice == "makeOrder":
-        user.makeOrder()
     elif choice == "startOrder":
         order.startOrder()
     elif choice == "outputOrder":
         order.outputOrder()
+    elif choice == "outputRetrievedOrder":
+        order.outputRetrievedOrder()
     elif choice == "retrieveOrder":
         order.retrieveOrder()
+    elif choice == "addItems":
+        order.addItems()
     elif choice == "addItem":
         order.addItem()
+    elif choice == "removeItems":
+        order.removeItems()
     elif choice == "removeItem":
         order.removeItem()
+    elif choice == "changeItemQuantities":
+        order.changeItemQuantities()
     elif choice == "changeItemQuantity":
         order.changeItemQuantity()
     elif choice == "setPaymentMethod":
