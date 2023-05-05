@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Inventory Management</title>
+</head>
+<body>
+
+    <form action="newInventoryItem" method="GET">
+        <p>New Inventory Item</p>
+        <p>Inventory ID: <input type="number" name="inventoryID"></p>
+        <p>Inventory Name: <input type="text" name="inventoryName"></p>
+        <p>Inventory Department: <input type="text" name="department"></p>
+        <p>Inventory Price: <input type="number" step="0.01" name="inventoryPrice"></p>
+        <p>Inventory Quantity: <input type="number" step="0.01" name="inventoryQuantity"></p>
+        <p><input type="submit" name="newInventoryItem"></p>
+    </form>
+
+    <form action="outputInventoryItem" method="GET">
+        <p>Output Current Inventory Item</p>
+        <p><input type="submit" name="outputInventoryItem"></p>
+    </form>
+
+    <form action="addCurrentInventoryItem" method="GET">
+        <p>Add Current Inventory Item to Database</p>
+        <p><input type="submit" name="addCurrentInventoryItem"></p>
+    </form>
+
+    <form action="addNewInventoryItem" method="GET">
+        <p>Add New Inventory Item to Database</p>
+        <p>Inventory ID: <input type="number" name="inventoryID"></p>
+        <p>Inventory Name: <input type="text" name="inventoryName"></p>
+        <p>Inventory Department: <input type="text" name="department"></p>
+        <p>Inventory Price: <input type="number" step="0.01" name="inventoryPrice"></p>
+        <p>Inventory Quantity: <input type="number" step="0.01" name="inventoryQuantity"></p>
+        <p><input type="submit" name="addNewInventoryItem"></p>
+    </form>
+
+    <form action="retrieveInventoryItem" method="GET">
+        <p>Retrieve Inventory Item from Database</p>
+        <p>Inventory ID: <input type="number" name="inventoryID"></p>
+        <p><input type="submit" name="retrieveInventoryItem"></p>
+    </form>
+
+    <form action="alterInventoryItem" method="GET">
+        <p>Alter Current Inventory Item</p>
+        <p>Inventory Name: <input type="text" name="inventoryName"></p>
+        <p>Inventory Department: <input type="text" name="department"></p>
+        <p>Inventory Price: <input type="number" step="0.01" name="inventoryPrice"></p>
+        <p>Inventory Quantity: <input type="number" step="0.01" name="inventoryQuantity"></p>
+        <p><input type="submit" name="alterInventoryItem"></p>
+    </form>
+
+    <form action="alterInventoryQuantity" method="GET">
+        <p>Alter Current Inventory Item Quantity</p>
+        <p>Inventory Quantity: <input type="number" step="0.01" name="inventoryQuantity"></p>
+        <p><input type="submit" name="alterInventoryQuantity"></p>
+    </form>
+
+    <form action="commitAlteredInventoryItem" method="GET">
+        <p>Commit Alterations to Current Inventory Item to Database</p>
+        <p><input type="submit" name="commitAlteredInventoryItem"></p>
+    </form>
+
+    <form action="deleteCurrentInventoryItem" method="GET">
+        <p>Delete Current Inventory Item</p>
+        <p><input type="submit" name="deleteCurrentInventoryItem"></p>
+    </form>
+
+    <form action="deleteSelectedInventoryItem" method="GET">
+        <p>Delete Selected Inventory Item</p>
+        <p>Inventory ID: <input type="number" name="inventoryID"></p>
+        <p><input type="submit" name="deleteSelectedInventoryItem"></p>
+    </form>
+</body>
+</html>
